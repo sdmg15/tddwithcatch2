@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 #include <string_view>
-#include <map>
+#include <vector>
 #include <utility>
 
 namespace Todo{
@@ -40,7 +40,7 @@ using TaskID = int;
     
     struct Todo {
 
-        std::map<TaskID, Task> tasks_;
+        std::vector<Task> tasks_;
 
         auto makeTask(std::string_view t, std::string_view desc, 
                      const Priority p = Priority::NONE, const Status s = Status::NONE) noexcept -> Todo& {
@@ -52,26 +52,24 @@ using TaskID = int;
             task.desc_ = desc;
             task.status_ = s;
 
-            auto newID = tasks_.size() + 1;
-
-            tasks_.emplace( std::make_pair(newID, task));
+            tasks_.emplace_back(task);
 
             return *this;
         }
 
-        auto deleteTask(TaskID taskID) noexcept(false) -> Todo& {
+        auto deleteTask(TaskID taskID) noexcept -> Todo& {
 
-            auto foundElem = tasks_.find( taskID );
-
-            if( foundElem != tasks_.end() ){
-                tasks_.erase(  foundElem ); 
+            if( tasks_.size() < taskID ){
+                std::cout << "Out of range ... \n";
             }else{
-                std::cout << "Element not found exiting ... \n";
+                auto toDeleteIt = tasks_.cbegin() + taskID;
+                tasks_.erase(toDeleteIt);
             }
+
             return *this;
         }
 
-        auto tasks() const noexcept -> std::map<TaskID, Task> {
+        auto tasks() const noexcept -> std::vector<Task> {
             return tasks_;
         } 
 
